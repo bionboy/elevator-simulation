@@ -266,17 +266,19 @@ def main(trials=2, display_runs=False):
     p(f'[red]9:00[/red] -> {df[df["time"] == end]["queue"].mean()}')
 
     with console.status('Plotting'):
+        sns.set(style="ticks", context="paper")
+        plt.style.use('dark_background')   # type: ignore
+
         lines = ['queue', 'traveled', 'climbers']
         for line in lines:
             sns.lineplot(data=df, x='time', y=line)
 
-        sns.set()
         plt.title(f'Elevator Simulation (Trials={trials})')
         plt.xlabel('Time (minutes)')
-        plt.ylabel('Count (humans)')
+        plt.ylabel('Count (workers)')
         plt.legend(labels=lines)
         plt.tight_layout()  # type: ignore
-        # plt.show()
+        plt.show()
 
 
 if __name__ == '__main__':
