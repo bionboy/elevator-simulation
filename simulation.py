@@ -1,14 +1,12 @@
-from typing import Any, List, Optional, Tuple
+from typing import List, Optional
 from dataclasses import dataclass, field
 import numpy as np
 from numpy import ndarray, float64 as f64
-import pandas as pd
 from pandas.core.frame import DataFrame
 import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Formatting libs
-from rich import inspect, print
 from rich.console import Console
 from rich import traceback
 from rich.progress import track
@@ -26,7 +24,6 @@ FLOOR_NAMES = ['g', '2', '3', '4']
 ELEVATOR_CAPACITY = 12
 TAKE_THE_STAIRS_THRESHOLD = 12
 DOOR_OPEN_TIME = .5
-
 # endregion
 
 # region Classes
@@ -35,7 +32,6 @@ DOOR_OPEN_TIME = .5
 @dataclass
 class Worker():
     arrival: f64 = field(default_factory=f64)
-    # bording_time: f64 = field(default_factory=f64)
     bording_time: f64 = np.inf   # type: ignore
     floor: int = field(default_factory=lambda: np.random.randint(1, 4))
     walked: bool = False
@@ -113,7 +109,6 @@ class Elevator():
         duration += self.travel_times[target, 0]   # type: ignore
         return duration, workers
 
-
 # endregion
 
 
@@ -148,10 +143,11 @@ def simulation(trial, display=False):
     def logData(time):
         hist.append([str(trial), time, len(queue), len(traveled), len(climbers)])
 
-    hist = []
     if display:
         console.rule('Simulation')
         p('(time) ->    ariv | elev | que | stair')
+
+    hist = []
     while time < 60:
         time += f64(.5)
 
@@ -188,16 +184,15 @@ def simulation(trial, display=False):
         # ? Print info
         if display:
             p(f'([red]8:{time:05.2f}[/red])(+{trip_time:4}) -> {arrival_cnt:4} | {holding} | {len(queue):4} | {len(climbers)}')
-        # hist.append([time, len(queue)])
-        logData(time)
 
         # ? Advance simulation time
+        logData(time)
         oldtime = time
         time += trip_time
     return hist, (traveled, climbers, queue)
 
 
-def main(trials=2, display_runs=False):
+def main(trials=1, display_runs=False):
     hists = []
     waiting_times: List[f64] = []
     last_borders: List[f64] = []
@@ -216,7 +211,6 @@ def main(trials=2, display_runs=False):
 
         if display_runs:
             console.rule('workers')
-            # workers.sort(key=lambda x: x.arrival)
             pct_traveled = (len(traveled) / len(workers)) * 100
             p(f'% Traveled: {pct_traveled:.2f}%')
 
@@ -237,7 +231,6 @@ def main(trials=2, display_runs=False):
     #! Rounding to the minute for seaborn
     df['time'] = df['time'].apply(int, convert_dtype=True)
     df.drop_duplicates(inplace=True)   # type: ignore
-    # p(df.info())   # type: ignore
 
     console.rule('Average Waiting Time')
     p(np.array(waiting_times).mean())
@@ -282,4 +275,4 @@ def main(trials=2, display_runs=False):
 
 
 if __name__ == '__main__':
-    main(trials=10, display_runs=False)
+    main(trials=1, display_runs=False)
